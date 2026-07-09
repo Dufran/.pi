@@ -1,0 +1,7 @@
+auth.json
+agent/sessions
+.DS_Store
+npm
+run-history.jsonl
+trust.json
+node_modules

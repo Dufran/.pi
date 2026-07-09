@@ -1,0 +1,6 @@
+version: "3"
+
+tasks:
+  lint:
+    cmds:
+      - yarn run biome check --write

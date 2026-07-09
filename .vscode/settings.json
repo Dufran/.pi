@@ -1,0 +1,43 @@
+{
+	"[css]": {
+		"editor.defaultFormatter": "biomejs.biome"
+	},
+	"[django-html]": {
+		"editor.defaultFormatter": "monosans.djlint"
+	},
+	"[javascript]": {
+		"editor.defaultFormatter": "biomejs.biome"
+	},
+	"[json]": {
+		"editor.defaultFormatter": "biomejs.biome"
+	},
+	"[jsonc]": {
+		"editor.defaultFormatter": "biomejs.biome"
+	},
+	"[markdown]": {
+		"editor.defaultFormatter": "DavidAnson.vscode-markdownlint"
+	},
+	"[postcss]": {
+		"editor.defaultFormatter": "biomejs.biome"
+	},
+	"[python]": {
+		"editor.defaultFormatter": "charliermarsh.ruff"
+	},
+	"[typescript]": {
+		"editor.defaultFormatter": "biomejs.biome"
+	},
+	"[typescriptreact]": {
+		"editor.defaultFormatter": "biomejs.biome"
+	},
+	"biome.configurationPath": "biome.json",
+	"biome.enabled": true,
+	"biome.lsp.bin": {
+		"darwin-arm64": "./node_modules/@biomejs/cli-darwin-arm64/biome",
+		"darwin-x64": "./node_modules/@biomejs/cli-darwin-x64/biome",
+		"linux-x64": "./node_modules/@biomejs/cli-linux-x64/biome",
+		"win32-x64": "./node_modules/@biomejs/cli-win32-x64/biome.exe"
+	},
+	"biome.requireConfiguration": true,
+	"cSpell.words": ["firstpick", "Pyrefly", "queryset", "querysets"],
+	"pendant.autoGenerateSessionNames": true
+}
