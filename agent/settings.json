@@ -9,7 +9,8 @@
   "packages": [
     "npm:pi-subagents",
     "npm:pi-add-dir",
-    "npm:@firstpick/pi-skill-deep-research"
+    "npm:@firstpick/pi-skill-deep-research",
+    "npm:@plannotator/pi-extension"
   ],
   "externalEditor": "code --wait",
   "subagents": {
