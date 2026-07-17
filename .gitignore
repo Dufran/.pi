@@ -5,3 +5,4 @@ npm
 run-history.jsonl
 trust.json
 node_modules
+models-store.json
