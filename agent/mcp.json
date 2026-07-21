@@ -1,0 +1,8 @@
+{
+	"mcpServers": {
+		"sentry-spotlight": {
+			"command": "npx",
+			"args": ["-y", "@spotlightjs/spotlight@latest", "mcp"]
+		}
+	}
+}

@@ -1,5 +1,5 @@
 {
-  "lastChangelogVersion": "0.80.6",
+  "lastChangelogVersion": "0.80.9",
   "defaultProvider": "openai-codex",
   "defaultModel": "gpt-5.6-sol",
   "defaultThinkingLevel": "medium",
@@ -10,7 +10,8 @@
     "npm:pi-subagents",
     "npm:pi-add-dir",
     "npm:@firstpick/pi-skill-deep-research",
-    "npm:@plannotator/pi-extension"
+    "npm:@plannotator/pi-extension",
+    "npm:pi-mcp-adapter"
   ],
   "externalEditor": "code --wait",
   "subagents": {

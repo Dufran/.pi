@@ -38,6 +38,15 @@
 		"win32-x64": "./node_modules/@biomejs/cli-win32-x64/biome.exe"
 	},
 	"biome.requireConfiguration": true,
-	"cSpell.words": ["firstpick", "Pyrefly", "queryset", "querysets"],
+	"cSpell.words": [
+		"firstpick",
+		"nvmrc",
+		"pypirc",
+		"Pyrefly",
+		"queryset",
+		"querysets",
+		"spotlightjs",
+		"Taskfile"
+	],
 	"pendant.autoGenerateSessionNames": true
 }
