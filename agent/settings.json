@@ -11,7 +11,8 @@
     "npm:pi-add-dir",
     "npm:@firstpick/pi-skill-deep-research",
     "npm:@plannotator/pi-extension",
-    "npm:pi-mcp-adapter"
+    "npm:pi-mcp-adapter",
+    "npm:pi-agent-browser-native"
   ],
   "externalEditor": "code --wait",
   "subagents": {

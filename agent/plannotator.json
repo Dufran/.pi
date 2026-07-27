@@ -8,10 +8,10 @@
   },
   "phases": {
     "planning": {
-      "thinking": "xhigh"
+      "thinking": "high"
     },
     "executing": {
-      "thinking": "high"
+      "thinking": "medium"
     }
   }
 }

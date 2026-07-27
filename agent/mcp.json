@@ -5,19 +5,6 @@
 			"args": ["-y", "--prefer-online", "@spotlightjs/spotlight@latest", "mcp"],
 			"disabled": false,
 			"directTools": true
-		},
-		"firefox-devtools": {
-			"command": "npx",
-			"args": [
-				"-y",
-				"@mozilla/firefox-devtools-mcp@latest",
-				"--firefoxPath",
-				"/Applications/Zen.app/Contents/MacOS/zen",
-				"--autoProfile",
-				"--headless",
-				"--viewport",
-				"1280x720"
-			]
 		}
 	}
 }
