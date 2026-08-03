@@ -1,6 +1,25 @@
 version: "3"
 
+vars:
+  MATT_POCOCK_SKILLS: >-
+    wayfinder
+    setup-matt-pocock-skills
+    grilling
+    domain-modeling
+    research
+    prototype
+
 tasks:
   lint:
     cmds:
       - yarn run biome check --write
+
+  skills:update:
+    desc: Update the configured Matt Pocock skills globally
+    cmds:
+      - npx --yes skills@latest update {{.MATT_POCOCK_SKILLS}} --global --yes
+
+  skills:update-all:
+    desc: Update all globally installed skills
+    cmds:
+      - npx --yes skills@latest update --global --yes

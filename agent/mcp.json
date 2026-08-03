@@ -1,10 +1,22 @@
 {
-	"mcpServers": {
-		"sentry-spotlight": {
-			"command": "npx",
-			"args": ["-y", "--prefer-online", "@spotlightjs/spotlight@latest", "mcp"],
-			"disabled": false,
-			"directTools": true
-		}
-	}
+  "mcpServers": {
+    "sentry-spotlight": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "--prefer-online",
+        "@spotlightjs/spotlight@latest",
+        "mcp"
+      ],
+      "disabled": false,
+      "directTools": false
+    },
+    "codegraph": {
+      "command": "codegraph",
+      "args": [
+        "serve",
+        "--mcp"
+      ]
+    }
+  }
 }

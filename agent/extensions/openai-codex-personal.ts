@@ -1,4 +1,5 @@
 import {
+	cleanupSessionResources,
 	createAssistantMessageEventStream,
 	type Api,
 	type AssistantMessageEvent,
@@ -13,7 +14,9 @@ const PROVIDER_ID = "openai-codex-personal";
 const BASE_PROVIDER_ID = "openai-codex";
 const FOREIGN_WORK_HISTORY_ID = "openai-codex-work-history";
 
-function scopeSession<T extends { sessionId?: string } | undefined>(options: T): T {
+function scopeSession<T extends { sessionId?: string } | undefined>(
+	options: T,
+): T {
 	if (!options?.sessionId) return options;
 	return {
 		...options,
@@ -26,8 +29,10 @@ function prepareContext(context: Context): Context {
 		...context,
 		messages: context.messages.map((message) => {
 			if (message.role !== "assistant") return message;
-			if (message.provider === PROVIDER_ID) return { ...message, provider: BASE_PROVIDER_ID };
-			if (message.provider === BASE_PROVIDER_ID) return { ...message, provider: FOREIGN_WORK_HISTORY_ID };
+			if (message.provider === PROVIDER_ID)
+				return { ...message, provider: BASE_PROVIDER_ID };
+			if (message.provider === BASE_PROVIDER_ID)
+				return { ...message, provider: FOREIGN_WORK_HISTORY_ID };
 			return message;
 		}),
 	};
@@ -47,7 +52,10 @@ function relabelEvent(event: AssistantMessageEvent): AssistantMessageEvent {
 	return { ...event, error: { ...event.error, provider: PROVIDER_ID } };
 }
 
-function forward(inner: AssistantMessageEventStream, model: Model<Api>): AssistantMessageEventStream {
+function forward(
+	inner: AssistantMessageEventStream,
+	model: Model<Api>,
+): AssistantMessageEventStream {
 	const outer = createAssistantMessageEventStream();
 
 	void (async () => {
@@ -69,7 +77,13 @@ function forward(inner: AssistantMessageEventStream, model: Model<Api>): Assista
 						cacheRead: 0,
 						cacheWrite: 0,
 						totalTokens: 0,
-						cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0, total: 0 },
+						cost: {
+							input: 0,
+							output: 0,
+							cacheRead: 0,
+							cacheWrite: 0,
+							total: 0,
+						},
 					},
 					stopReason: "error",
 					errorMessage: error instanceof Error ? error.message : String(error),
@@ -84,10 +98,14 @@ function forward(inner: AssistantMessageEventStream, model: Model<Api>): Assista
 }
 
 export default function (pi: ExtensionAPI) {
-	const base = builtinProviders().find((provider) => provider.id === BASE_PROVIDER_ID);
+	const base = builtinProviders().find(
+		(provider) => provider.id === BASE_PROVIDER_ID,
+	);
 	if (!base) throw new Error("Built-in openai-codex provider was not found");
 
-	const models = base.getModels().map((model) => ({ ...model, provider: PROVIDER_ID }));
+	const models = base
+		.getModels()
+		.map((model) => ({ ...model, provider: PROVIDER_ID }));
 
 	pi.registerProvider({
 		...base,
@@ -95,8 +113,30 @@ export default function (pi: ExtensionAPI) {
 		name: "OpenAI Codex (Personal)",
 		getModels: () => models,
 		stream: (model, context, options) =>
-			forward(base.stream(prepareModel(model), prepareContext(context), scopeSession(options)), model),
+			forward(
+				base.stream(
+					prepareModel(model),
+					prepareContext(context),
+					scopeSession(options),
+				),
+				model,
+			),
 		streamSimple: (model, context, options) =>
-			forward(base.streamSimple(prepareModel(model), prepareContext(context), scopeSession(options)), model),
+			forward(
+				base.streamSimple(
+					prepareModel(model),
+					prepareContext(context),
+					scopeSession(options),
+				),
+				model,
+			),
+	});
+
+	pi.on("session_shutdown", (_event, ctx) => {
+		// Pi cleans up the unscoped session ID; also close this provider's
+		// separately scoped Codex WebSocket and its five-minute idle timer.
+		cleanupSessionResources(
+			`${PROVIDER_ID}:${ctx.sessionManager.getSessionId()}`,
+		);
 	});
 }

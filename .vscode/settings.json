@@ -39,15 +39,19 @@
 	},
 	"biome.requireConfiguration": true,
 	"cSpell.words": [
+		"Behaviour",
+		"codegraph",
 		"firstpick",
 		"nvmrc",
 		"plannotator",
+		"Pocock",
 		"pypirc",
 		"Pyrefly",
 		"queryset",
 		"querysets",
 		"spotlightjs",
-		"Taskfile"
+		"Taskfile",
+		"wayfinder"
 	],
 	"pendant.autoGenerateSessionNames": true
 }
