@@ -16,27 +16,70 @@
   ],
   "externalEditor": "code --wait",
   "subagents": {
+    "defaultModel": "gpt-5.6-sol",
+    "defaultThinking": "medium",
     "agentOverrides": {
-      "reviewer": {
-        "model": "gpt-5.6-sol",
+      "scout": {
+        "model": "gpt-5.6-luna",
+        "thinking": "low",
+        "fallbackModels": [
+          "openai-codex/gpt-5.4-mini"
+        ]
+      },
+      "delegate": {
+        "model": "gpt-5.6-luna",
+        "thinking": "low",
+        "fallbackModels": [
+          "openai-codex/gpt-5.4-mini"
+        ]
+      },
+      "context-builder": {
+        "model": "gpt-5.6-terra",
         "thinking": "medium",
         "fallbackModels": [
-          "openai-codex/gpt-5.6-terra"
+          "openai-codex/gpt-5.4-mini"
+        ]
+      },
+      "researcher": {
+        "model": "gpt-5.6-terra",
+        "thinking": "medium",
+        "fallbackModels": [
+          "openai-codex/gpt-5.4-mini"
         ]
       },
       "worker": {
-        "model": "gpt-5.6-luna",
+        "model": "gpt-5.6-terra",
+        "thinking": "high",
+        "fallbackModels": [
+          "openai-codex/gpt-5.4"
+        ]
+      },
+      "planner": {
+        "model": "openai-codex/gpt-5.6-sol",
         "thinking": "high",
         "fallbackModels": [
           "openai-codex/gpt-5.6-terra"
         ]
       },
-      "scout": {
-        "model": "gpt-5.6-luna",
-        "thinking": "low",
+      "reviewer": {
+        "model": "gpt-5.6-sol",
+        "thinking": "high",
         "fallbackModels": [
-          "gpt-5.4-mini",
-          "nvidia/z-ai/glm-5.2"
+          "openai-codex/gpt-5.6-terra"
+        ]
+      },
+      "oracle": {
+        "model": "gpt-5.6-sol",
+        "thinking": "high",
+        "fallbackModels": [
+          "openai-codex/gpt-5.6-terra"
+        ]
+      },
+      "advisor": {
+        "model": "gpt-5.6-sol",
+        "thinking": "high",
+        "fallbackModels": [
+          "openai-codex/gpt-5.6-terra"
         ]
       }
     }
