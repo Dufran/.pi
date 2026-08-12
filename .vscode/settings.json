@@ -42,6 +42,7 @@
 		"Behaviour",
 		"codegraph",
 		"firstpick",
+		"frontmatter",
 		"nvmrc",
 		"plannotator",
 		"Pocock",
@@ -53,5 +54,6 @@
 		"Taskfile",
 		"wayfinder"
 	],
-	"pendant.autoGenerateSessionNames": true
+	"pendant.autoGenerateSessionNames": true,
+	"pendant.showThinking": true
 }
