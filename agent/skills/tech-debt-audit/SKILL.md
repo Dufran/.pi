@@ -1,11 +1,11 @@
 ---
 name: tech-debt-audit
-description: Audit a codebase for evidence-backed technical debt, especially meaningful DRY violations, cognitive complexity and excessive implementation depth, outdated dependencies, deprecated or stale library usage, and viable library alternatives evaluated for developer experience and type safety. Launch read-only subagents and produce a prioritized implementation handoff document. Use when asked to assess codebase health or human maintainability, find technical debt, simplify implementations, review dependency currency or alternatives, or prepare actionable remediation work.
+description: Audit a codebase for evidence-backed technical debt, especially meaningful DRY violations, cognitive complexity and excessive implementation depth, Django ORM/query and query-layer duplication problems, React state-ownership and prop-drilling anti-patterns, outdated dependencies, deprecated or stale library usage, and viable library alternatives evaluated for developer experience and type safety. Launch read-only subagents and produce a prioritized implementation handoff document. Use when asked to assess codebase health or human maintainability, find technical debt, simplify implementations, review Django or React architecture/performance, review dependency currency or alternatives, or prepare actionable remediation work.
 ---
 
 # Tech Debt Audit
 
-Run a read-only, evidence-driven technical-debt audit and produce one implementation-ready handoff document. Evaluate meaningful duplication, cognitive load and implementation depth, dependency/API currency, and credible alternatives to strategically important libraries, especially from developer-experience and type-safety perspectives. The audit identifies work; it does not modify project source code or dependency files.
+Run a read-only, evidence-driven technical-debt audit and produce one implementation-ready handoff document. Evaluate meaningful duplication, cognitive load and implementation depth, dependency/API currency, and credible alternatives to strategically important libraries, especially from developer-experience and type-safety perspectives. When detected in scope, also evaluate Django query behavior and reusable query/domain boundaries, plus React state ownership, server/client state separation, effect-driven synchronization, prop drilling, and avoidable render coupling. React findings may be reasoned assumptions from code structure, types, component contracts, and referenced usage; runtime profiling or production evidence is not required when the inference and uncertainty are explicit. The audit identifies work; it does not modify project source code or dependency files.
 
 ## Inputs
 
@@ -13,7 +13,8 @@ Infer these from the request and repository when possible:
 
 - **Scope**: repository, package, service, or paths to inspect. Default: current repository.
 - **Output path**: where to write the handoff. Default: `docs/tech-debt-handoff.md` when `docs/` exists; otherwise `tech-debt-handoff.md` at the repository root.
-- **Focus**: optional languages, packages, or concerns.
+- **Focus**: optional languages, packages, frameworks, or concerns.
+- **Framework signals**: detect Django from dependencies/settings/apps/models/querysets/DRF usage and React from dependencies/JSX or TSX/framework configuration. Apply framework-specific checks only where those signals exist.
 
 Ask a question only when the repository/scope is unavailable, the requested scope is materially ambiguous, or writing the default output path would overwrite an existing document without clear permission. If the output already exists, choose a dated or numbered filename and report it.
 
@@ -41,12 +42,14 @@ Inspect repository guidance and the minimum files needed to plan the audit:
 - workspace/monorepo structure
 - lint, test, type-check, and build commands
 - existing architecture or technical-debt documents
+- Django signals when present: settings, installed apps, model/queryset/manager layers, DRF/GraphQL/admin/template boundaries, database backend, and existing query-count/performance tests
+- React signals when present: framework and rendering mode, component/state boundaries, routing/data-fetching layer, state libraries, form libraries, and existing profiler/render tests
 
-Record the exact audit scope, exclusions, repository root, current commit when Git is available, date, and the pre-audit working-tree snapshot.
+Record the exact audit scope, exclusions, repository root, current commit when Git is available, date, detected frameworks, and the pre-audit working-tree snapshot.
 
 ### 2. Launch parallel discovery
 
-Launch a small parallel fanout, normally five fresh-context read-only roles with at most three running concurrently. Adapt agent names to those available. Use at most three concurrent discovery agents by default. In a monorepo with more than eight packages or an obviously broad scope, first launch one scout; require it to return explicit, non-overlapping package/path scopes, then process at most eight scopes per batch with no more than three agents concurrently. Never launch an unbounded repository-wide discovery prompt.
+Launch a small parallel fanout, normally five fresh-context read-only roles plus one framework specialist when Django or React is detected, with at most three running concurrently. Combine the framework specialist with another role for small repositories. Adapt agent names to those available. Use at most three concurrent discovery agents by default. In a monorepo with more than eight packages or an obviously broad scope, first launch one scout; require it to return explicit, non-overlapping package/path scopes, then process at most eight scopes per batch with no more than three agents concurrently. Never launch an unbounded repository-wide discovery prompt.
 
 1. **Code structure / DRY reviewer** (`reviewer` or `scout`)
    - Find repeated business rules, near-duplicate control flow, duplicated transformations/queries/validation, copy-pasted tests or fixtures that create maintenance risk, and inconsistent parallel implementations.
@@ -77,7 +80,17 @@ Launch a small parallel fanout, normally five fresh-context read-only roles with
    - Validate deprecation or migration claims against official docs, changelogs, migration guides, compiler/linter output, or repository evidence.
    - Identify missing or weak tests around proposed migration boundaries and likely regression areas.
 
-5. **Library alternatives researcher** (`researcher`)
+5. **Django / React framework specialist, only when detected** (`reviewer`)
+   - **Django query performance:** trace request/task/serializer/template/admin/GraphQL paths into ORM evaluation. Look for evidenced N+1 queries; repeated queryset evaluation; queries hidden in loops, properties, `__str__`, serializer method fields, or templates; wasteful `count()`/`exists()`/`len()` patterns; unbounded loads; per-row writes; missing bulk operations; and transaction/locking patterns that create concrete contention or correctness risk.
+   - Evaluate `select_related`, `prefetch_related`, `Prefetch`, annotations, subqueries, pagination, field projection, indexes, caching, and bulk APIs against the actual access pattern. Do not recommend eager loading, `only()`/`defer()`, caching, or an index by reflex: state cardinality, memory, invalidation, write cost, and database-backend tradeoffs. Index recommendations require a concrete filter/order/join shape and should use an existing representative `EXPLAIN` path when safely available; never use or mutate production data.
+   - **Django DRY and boundaries:** find duplicated filters, permission/tenant scoping, annotations, ordering, lifecycle rules, serializer/view/form validation, and business rules across views, tasks, commands, admin, or APIs. Prefer a cohesive custom `QuerySet`/manager, domain service, model constraint, or shared validator only when it represents one stable rule and preserves composability. Flag fat-model/fat-view/service-layer indirection when it merely moves logic. Treat similar-looking queries with different authorization, locking, eager-loading, or consistency semantics as intentional until proven otherwise.
+   - Require path-and-line evidence plus the query trigger and evaluation point. Prefer existing query-count tests or bounded test-client reproductions. Report measured query counts/timings/plans separately from static suspicions; never invent performance gains from source inspection.
+   - **React state architecture:** map each hotspot's state owner, writers, readers, source of truth, and lifecycle. Find duplicated or mirrored state, derived state stored unnecessarily, effect chains used for synchronization, stale-closure risks, state split across competing stores, overly broad global/context state, server data copied into client state, unstable provider values, broad subscriptions/selectors, and state colocated too high or too low.
+   - **Props and component boundaries:** flag prop drilling when data or callbacks pass through multiple components that neither interpret nor own them and the code, types, or usage references indicate likely change coupling. Record the chain and depth. Compare the smallest options first: composition/children, colocating state, a feature hook, splitting a component, or an existing context/store. Do not prescribe Context or a new state library merely to avoid two or three explicit props; explicit component APIs and intentional container/presenter boundaries may be clearer.
+   - **React effects and rendering:** distinguish server state, URL state, form state, local UI state, and cross-feature client state before recommending ownership. Identify avoidable `useEffect` synchronization, render-phase derivation expressed as effects, incorrect dependency workarounds, remount/reset hacks, and likely rerender fan-out. Static reasoning from component structure, types, hooks, provider values, selectors, and call-site references is sufficient; profiling is optional. Recommendations for `memo`, `useMemo`, `useCallback`, selector rewrites, or state-library changes must explain the inferred render path and tradeoffs rather than asserting a measured speedup. Account for the repository's React/framework version and server/client component model.
+   - For Django findings return verified evidence and distinguish measurements from static suspicions. For React findings return cited code/type/reference observations, the resulting assumption, confidence, smallest bounded change, validation ideas, and reasons the current pattern may be intentional; do not block a useful React finding solely because runtime evidence is unavailable. Separate correctness, query-count/render-frequency, latency, memory, and code-organization claims.
+
+6. **Library alternatives researcher** (`researcher`)
    - Select only strategically important direct libraries: core framework/infrastructure dependencies, libraries with significant application coupling, weak typing or poor ergonomics, maintenance concerns, or an actionable update/migration finding. Do not inventory alternatives for every transitive or trivial utility dependency.
    - Identify at most three credible alternatives per selected library, including “keep the current library” as the baseline. Consider replacement, supplement, or native platform/framework capabilities rather than assuming migration is desirable.
    - Evaluate developer experience using concrete evidence: API ergonomics, documentation quality, diagnostics/error messages, tooling and IDE support, testability, configuration burden, ecosystem/integration fit, learning curve, and operational/debugging experience.
@@ -95,6 +108,7 @@ subagent({
     { agent: "reviewer", task: "Audit cognitive complexity and implementation depth only within <paths>. Trace difficult control flow and indirection, distinguish accidental complexity from justified design, and propose the smallest human-centered simplification without speculative abstraction. Do not modify repository files. Return hotspots, call paths, cognitive-load signals, before/after responsibility sketches, tests, non-issues, and evidence gaps.", output: false },
     { agent: "researcher", task: "Verify dependency currency for manifests under <paths>. Do not modify repository files or install packages. Return versions, exact authoritative URLs, UTC verification times, compatibility constraints, and unknowns.", output: false },
     { agent: "reviewer", task: "Audit third-party API usage only within <paths>. Do not modify repository files. Return evidence-backed deprecated/stale usage, tests at risk, non-issues, and evidence gaps.", output: false },
+    { agent: "reviewer", task: "Django/React only when detected: audit Django ORM evaluation/query-layer DRY and React state ownership/effects/prop chains/render coupling within <paths>. Do not modify files or access production data. Require measurements for claimed Django performance gains, but allow React assumptions from code, types, component contracts, and usage references when labeled with confidence. Return findings, assumptions, intentional patterns, query/state-flow traces, smallest fixes, validation ideas, and evidence gaps.", output: false },
     { agent: "researcher", task: "For strategically important direct libraries used within <paths>, compare at most three credible alternatives including keeping the current library. Do not modify repository files or install packages. Evaluate developer experience, type safety, maintenance, compatibility, and migration cost using authoritative evidence; conclude keep/adopt/pilot/watch/reject with confidence and unknowns.", output: false }
   ],
   cwd: "<repository-root>",
@@ -108,10 +122,10 @@ wait({ all: true, timeoutMs: 900000 })
 
 Each discovery result must separate:
 
-- verified findings
+- verified findings; for React, code/type/reference-based observations and reasoned assumptions are sufficient
 - candidates needing validation
 - non-issues / intentional patterns
-- evidence gaps
+- evidence gaps or inference limits
 
 ### 3. Validate high-value findings
 
@@ -124,6 +138,9 @@ Before synthesis, independently verify findings that are high priority, broad in
 - distinguish command failure from an actual finding
 - verify high-impact alternative recommendations against actual repository usage and type-checking configuration; treat claims requiring a hands-on spike as `pilot`, not `adopt`
 - verify cognitive-complexity findings by tracing the cited entry point and change path; ensure the proposed simplification reduces concepts or navigation without hiding behavior or creating a speculative abstraction
+- for Django, confirm the ORM evaluation point and request/task path; use focused query-count tests or safe local/test-database plans when available, and label source-only N+1/index/performance claims as candidates rather than measured findings
+- for React, trace enough of the state/prop flow to support the conclusion, then allow assumptions from code structure, types, hooks, component contracts, selectors, and usage references; runtime profiler/render-count evidence is optional, but inferred performance effects must be labeled as assumptions rather than measured gains
+- reject Django abstractions that erase meaningful authorization/transaction/query semantics and React Context/store proposals that merely hide explicit dependencies or introduce a second source of truth
 - note ecosystems or private dependencies that could not be checked
 
 Never present “all libraries are up to date” unless every in-scope direct dependency and relevant runtime was checked successfully. State coverage numerically where practical, such as `24/27 direct dependencies verified; 3 private packages unknown`.
@@ -163,7 +180,7 @@ status: implementation-ready | needs-decision
 
 ### TD-001: <outcome-oriented title>
 - **Priority:** P0 | P1 | P2 | P3
-- **Category:** duplication | cognitive-complexity | excessive-indirection | dependency | deprecated-api | library-alternative | maintainability | testing | tooling
+- **Category:** duplication | cognitive-complexity | excessive-indirection | django-query-performance | django-query-dry | react-state-ownership | react-prop-drilling | react-render-performance | dependency | deprecated-api | library-alternative | maintainability | testing | tooling
 - **Confidence:** high | medium | low
 - **Effort:** S | M | L | XL
 - **Why now:** <maintenance cost, defect risk, support deadline, or blocker>
@@ -185,6 +202,18 @@ status: implementation-ready | needs-decision
 |---|---|---|---|---|---|---|
 
 For each proposed simplification, explain which concepts, branches, state transitions, navigation steps, or responsibilities are removed. If introducing an abstraction, name the stable domain concept or change boundary it represents and explain why it lowers total cognitive load. Record “keep current design” when simplification would merely move complexity or add indirection.
+
+## Django findings (include only when Django is in scope)
+| Entry path and ORM evaluation point | Query/DRY issue | Evidence or measurement | Correctness/performance impact | Smallest change | Validation | Confidence |
+|---|---|---|---|---|---|---|
+
+Keep measured query counts, timings, and plans distinct from static candidates. Include relevant database/backend and data-shape caveats. For shared-query recommendations, state the stable rule being centralized and semantics that must remain caller-specific.
+
+## React findings (include only when React is in scope)
+| State/prop flow | State kind and source of truth | Issue | Observed or inferred coupling/render impact | Smallest change | Optional validation | Confidence |
+|---|---|---|---|---|---|---|
+
+For prop drilling, show the owner-to-consumer chain and identify pass-through components. For state changes, name the writers/readers visible from in-scope code and avoid introducing competing sources of truth. State whether impact is observed or inferred from code, types, component contracts, or usage references. Profiling may be suggested but is not required for inclusion or prioritization.
 
 ## Library alternatives assessment
 | Current library / use case | Candidate | Disposition | Developer experience | Type safety | Maintenance/ecosystem | Migration cost/risk | Confidence | Evidence |
@@ -224,7 +253,11 @@ Set handoff status to `implementation-ready` only when every prioritized action 
 Before reporting completion, verify that:
 
 - every action item has concrete repository evidence
-- DRY findings cite multiple occurrences and explain why consolidation is safer than locality
+- DRY findings cite multiple occurrences and explain why consolidation is safer than locality; Django query-layer consolidation preserves distinct authorization, transaction, eager-loading, and consistency semantics
+- Django findings identify the entry path and ORM evaluation point; measured query counts/timings/plans are distinguished from source-only candidates, and index/eager-loading/cache recommendations include backend, cardinality, memory, write-cost, or invalidation tradeoffs as relevant
+- React state findings identify the inferred source of truth and visible writers/readers; prop-drilling findings show the pass-through chain and explain why composition or colocation is insufficient before proposing Context/a store
+- React findings may rely on reasoned assumptions from code, types, component contracts, hooks, selectors, and usage references; assumptions are labeled with confidence, while measured gains are claimed only when measurements exist
+- framework recommendations use the repository's actual Django/DRF/database and React/framework/rendering versions rather than generic best practices
 - every checked dependency/runtime row includes an exact authoritative URL and per-row UTC verification time; failed verification is `unknown`
 - alternatives coverage names which strategic direct libraries were evaluated and why others were excluded
 - declared, resolved, and latest relevant versions are not conflated
@@ -234,7 +267,7 @@ Before reporting completion, verify that:
 - alternative comparisons include the current library baseline, repository-specific use cases, DX and type-safety evidence, migration cost, and a justified disposition
 - no migration is recommended solely because an alternative is newer or more popular; uncertain hands-on claims become bounded pilots
 - priorities reflect impact and urgency rather than cosmetic preference
-- acceptance criteria and validation steps are executable
+- acceptance criteria and validation steps are executable; Django performance work includes focused correctness/query-count checks where feasible, while React validation may be recommended without being a prerequisite for code/type/reference-based findings
 - duplicate findings are merged
 - post-audit Git status/diffs/untracked paths match the pre-audit snapshot except for the exact handoff file; every unexpected file or lockfile change causes a stop and explicit warning
 - the handoff file exists at the reported path and no other repository file was written by the audit
