@@ -1,6 +1,6 @@
 ---
 name: pr-review
-description: Review the currently checked-out PR using scout codebase research first
+description: Review the currently checked-out PR and local uncommitted changes using scout codebase research first
 ---
 
 ## scout
@@ -10,14 +10,15 @@ as: codebaseContext
 output: codebase-context.md
 outputMode: file-only
 
-Research the currently checked-out pull request in this repository.
+Research the currently checked-out pull request and any local uncommitted changes in this repository.
 
-This is context gathering only. Do not edit files. Do not ask for a PR URL, branch name, issue link, or additional context. Inspect the local repository directly and analyze only the current checked-out PR changes.
+This is context gathering only. Do not edit files. Do not ask for a PR URL, branch name, issue link, or additional context. Inspect the local repository directly and analyze the current checked-out PR changes together with staged, unstaged, and untracked local changes.
 
 Determine the comparison base from the local git repository:
 - Prefer the configured upstream/base branch when available.
 - Otherwise compare against `origin/main`, `origin/master`, `main`, or `master`, whichever exists.
-- Use the merge base and inspect the diff from base to the current `HEAD`.
+- Use the merge base and inspect the combined change set from that base through the working tree, including commits on the current branch plus staged, unstaged, and untracked files.
+- Use `git diff <merge-base>` for tracked working-tree changes and `git status --short` to discover untracked files, then inspect relevant untracked file contents directly.
 
 Perform change-impact analysis, not only diff inspection. For every behaviorally meaningful change, identify the changed symbols, contracts, data shapes, events, configuration, and side effects, then search the repository for:
 - Direct callers, consumers, imports, registrations, overrides, and implementations.
@@ -58,16 +59,17 @@ phase: Review
 label: Final PR review
 reads: codebase-context.md
 
-You are reviewing the currently checked-out pull request in this repository as a senior engineer familiar with this codebase.
+You are reviewing the currently checked-out pull request and any local uncommitted changes in this repository as a senior engineer familiar with this codebase.
 
 Use the scout/codebase context saved at {outputs.codebaseContext}, but verify important claims yourself from the repository. Do not return only a list or summary of changed files. Your final answer must be a PR review with findings and recommendation.
 
-Do not ask for a PR URL, branch name, issue link, or additional context. Inspect the local repository directly and review only the current checked-out PR changes. Do not edit files; this is review-only.
+Do not ask for a PR URL, branch name, issue link, or additional context. Inspect the local repository directly and review the current checked-out PR changes together with staged, unstaged, and untracked local changes. Do not edit files; this is review-only.
 
 Confirm the comparison base from the local git repository:
 - Prefer the configured upstream/base branch when available.
 - Otherwise compare against `origin/main`, `origin/master`, `main`, or `master`, whichever exists.
-- Use the merge base and inspect the diff from base to the current `HEAD`.
+- Use the merge base and inspect the combined change set from that base through the working tree, including commits on the current branch plus staged, unstaged, and untracked files.
+- Use `git diff <merge-base>` for tracked working-tree changes and `git status --short` to discover untracked files, then inspect relevant untracked file contents directly.
 - Also inspect relevant nearby code, tests, configuration, and project instructions needed to judge consistency.
 
 For every behaviorally meaningful change, independently trace its impact beyond the changed files. Search references to changed symbols and contracts, inspect callers and consumers, and follow data/control flow through APIs, serializers, UI clients, jobs, signals/hooks, permissions, caches, configuration, fixtures, and tests as applicable. Search for analogous or duplicated implementations of the same feature elsewhere. Explicitly verify whether unchanged dependent locations remain compatible; if a corresponding update is missing, report the resulting behavior as a finding. Do not treat absence from the diff as evidence that a location is unaffected.
@@ -103,7 +105,7 @@ Review the PR against the existing codebase, not in isolation. Focus on:
 Return the review using Markdown third-level headings with exactly these section names:
 
 ### Summary
-Briefly describe what the current checked-out PR changes and your overall risk assessment.
+Briefly describe what the current checked-out PR and local uncommitted changes do, and give your overall risk assessment.
 
 ### Blocking issues
 List issues that should be fixed before merge. For each issue include:
