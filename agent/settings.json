@@ -1,6 +1,6 @@
 {
-  "lastChangelogVersion": "0.84.1",
-  "defaultProvider": "openai-codex",
+  "lastChangelogVersion": "0.84.4",
+  "defaultProvider": "openai-codex-personal",
   "defaultModel": "gpt-5.6-sol",
   "defaultThinkingLevel": "medium",
   "retry": {
@@ -12,7 +12,9 @@
     "npm:@firstpick/pi-skill-deep-research",
     "npm:@plannotator/pi-extension",
     "npm:pi-mcp-adapter",
-    "npm:pi-agent-browser-native"
+    "npm:pi-agent-browser-native",
+    "npm:pi-web-access",
+    "npm:pi-langfuse"
   ],
   "externalEditor": "code --wait",
   "subagents": {
@@ -89,10 +91,10 @@
     "openai-codex/gpt-5.6-sol",
     "openai-codex/gpt-5.6-terra",
     "openai-codex/gpt-5.6-luna",
-    "nvidia/z-ai/glm-5.2",
     "openai-codex-personal/gpt-5.6-sol",
     "openai-codex-personal/gpt-5.6-luna",
-    "openai-codex-personal/gpt-5.6-terra"
+    "openai-codex-personal/gpt-5.6-terra",
+    "openai-codex/gpt-6-astra"
   ],
   "compaction": {
     "enabled": true

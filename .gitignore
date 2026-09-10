@@ -9,3 +9,4 @@ models-store.json
 mcp-cache.json
 mcp-npx-cache.json
 missions/
+agent/pi-langfuse/config.json
