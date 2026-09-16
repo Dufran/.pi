@@ -1,0 +1,73 @@
+version = 1
+
+[defaults]
+runtime = "pi"
+defaultBranch = "main"
+failOn = "off"
+reportOn = "medium"
+maxFindings = 50
+minConfidence = "medium"
+reportOnSuccess = false
+
+# Default for repository-aware analysis. Individual skills override this below.
+[defaults.agent]
+model = "openai-codex/gpt-5.6-luna"
+maxTurns = 20
+effort = "medium"
+
+# Extraction, verification, deduplication, and fix-evaluation work.
+[defaults.auxiliary]
+model = "openai-codex/gpt-5.6-luna"
+effort = "low"
+maxRetries = 3
+
+# Cross-location finding consolidation. This is not a sequential skill handoff.
+[defaults.synthesis]
+model = "openai-codex/gpt-5.6-sol"
+
+[defaults.verification]
+enabled = true
+
+[defaults.chunking]
+maxContextFiles = 50
+
+[defaults.chunking.coalesce]
+enabled = true
+maxGapLines = 30
+maxChunkSize = 10000
+
+[runner]
+# Predictable local API usage; this limits concurrency, not total model calls.
+concurrency = 1
+
+[[skills]]
+name = "change-impact-review"
+model = "openai-codex/gpt-5.6-luna"
+maxTurns = 20
+
+[[skills.triggers]]
+type = "local"
+
+[[skills]]
+name = "ui-usability-review"
+model = "openai-codex/gpt-5.6-terra"
+maxTurns = 25
+paths = [
+  "**/*.ts",
+  "**/*.tsx",
+  "**/*.js",
+  "**/*.jsx",
+  "**/*.css",
+  "**/*.scss",
+]
+
+[[skills.triggers]]
+type = "local"
+
+[[skills]]
+name = "engineering-review"
+model = "openai-codex/gpt-5.6-sol"
+maxTurns = 35
+
+[[skills.triggers]]
+type = "local"

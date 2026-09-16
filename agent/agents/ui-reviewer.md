@@ -6,7 +6,6 @@ systemPromptMode: replace
 inheritProjectContext: true
 model: gpt-5.6-sol
 thinking: medium
-fallbackModels: gpt-5.6-terra
 inheritSkills: false
 defaultContext: fresh
 acceptanceRole: read-only
