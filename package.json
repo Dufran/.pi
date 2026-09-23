@@ -2,7 +2,10 @@
 	"packageManager": "yarn@4.12.0",
 	"scripts": {
 		"review": "warden",
-		"review:staged": "warden --staged"
+		"review:staged": "warden --staged",
+		"review:impact": "warden --skill change-impact-review",
+		"review:ui": "warden --skill ui-usability-review",
+		"review:engineering": "warden --skill engineering-review"
 	},
 	"dependencies": {
 		"@biomejs/biome": "^2.5.3"

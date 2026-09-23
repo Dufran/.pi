@@ -1,7 +1,7 @@
 {
-  "lastChangelogVersion": "0.84.4",
+  "lastChangelogVersion": "0.86.1",
   "defaultProvider": "openai-codex",
-  "defaultModel": "gpt-5.6-sol",
+  "defaultModel": "gpt-6-sol",
   "defaultThinkingLevel": "medium",
   "retry": {
     "enabled": true
@@ -14,19 +14,20 @@
     "npm:pi-mcp-adapter",
     "npm:pi-agent-browser-native",
     "npm:pi-web-access",
-    "npm:pi-langfuse"
+    "npm:@langfuse/pi-observability-plugin"
   ],
   "externalEditor": "code --wait",
+  "cacheWarming": "idle",
   "subagents": {
-    "defaultModel": "gpt-5.6-sol",
+    "defaultModel": "gpt-6-sol",
     "defaultThinking": "medium",
     "agentOverrides": {
       "scout": {
-        "model": "gpt-5.6-luna",
+        "model": "gpt-6-luna",
         "thinking": "low"
       },
       "delegate": {
-        "model": "gpt-5.6-luna",
+        "model": "gpt-6-luna",
         "thinking": "low"
       },
       "context-builder": {
@@ -42,30 +43,30 @@
         "thinking": "high"
       },
       "planner": {
-        "model": "openai-codex/gpt-5.6-sol",
+        "model": "openai-codex/gpt-6-sol",
         "thinking": "high"
       },
       "reviewer": {
-        "model": "gpt-5.6-sol",
+        "model": "gpt-6-sol",
         "thinking": "high"
       },
       "oracle": {
-        "model": "gpt-5.6-sol",
+        "model": "gpt-6-sol",
         "thinking": "high"
       },
       "advisor": {
-        "model": "gpt-5.6-sol",
+        "model": "gpt-6-sol",
         "thinking": "high"
       }
     }
   },
   "theme": "dark",
   "enabledModels": [
-    "openai-codex/gpt-5.6-sol",
+    "openai-codex/gpt-6-sol",
     "openai-codex/gpt-5.6-terra",
-    "openai-codex/gpt-5.6-luna",
-    "openai-codex-personal/gpt-5.6-sol",
-    "openai-codex-personal/gpt-5.6-luna",
+    "openai-codex/gpt-6-luna",
+    "openai-codex-personal/gpt-6-sol",
+    "openai-codex-personal/gpt-6-luna",
     "openai-codex-personal/gpt-5.6-terra",
     "openai-codex/gpt-6-astra"
   ],

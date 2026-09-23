@@ -4,15 +4,15 @@
 
 The repository includes a local-only [Sentry Warden](https://warden.sentry.dev/) configuration with three independent review skills:
 
-- `change-impact-review` uses `openai-codex/gpt-5.6-luna`.
-- `ui-usability-review` uses `openai-codex/gpt-5.6-terra`.
-- `engineering-review` uses `openai-codex/gpt-5.6-sol`.
+- `engineering-review` uses `openai-codex/gpt-6-sol` and runs by default.
+- `ui-usability-review` uses `openai-codex/gpt-5.6-terra` and runs by default for changed TSX, JSX, CSS, and SCSS files.
+- `change-impact-review` uses `openai-codex/gpt-6-luna` and runs only when explicitly requested because its repository-wide analysis is expensive when repeated per diff hunk.
 
-Warden's auxiliary work uses Luna, while cross-location synthesis uses Sol. Skills run independently; this is not the sequential handoff provided by `agent/chains/review-changes.chain.md`.
+Warden's auxiliary and cross-location synthesis work use Luna. Main-analysis turn limits are capped at 8–10 turns, and up to four hunks run concurrently. Skills run independently; this is not the sequential handoff provided by `agent/chains/review-changes.chain.md`.
 
 Warden 0.48.0 loads Pi's existing authentication from the configured Pi agent directory, so these models reuse the local `openai-codex` login rather than requiring an OpenRouter API key.
 
-Review current branch and working-tree changes:
+Review current branch changes:
 
 ```sh
 yarn review
@@ -27,7 +27,7 @@ yarn review:staged
 Run one skill when a focused review is enough:
 
 ```sh
-yarn warden --skill change-impact-review
-yarn warden --skill ui-usability-review
-yarn warden --skill engineering-review
+yarn review:impact
+yarn review:ui
+yarn review:engineering
 ```

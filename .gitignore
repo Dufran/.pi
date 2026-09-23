@@ -12,3 +12,4 @@ missions/
 agent/pi-langfuse/config.json
 web-search-cache
 .warden/
+langfuse.json
